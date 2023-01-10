@@ -6,6 +6,7 @@ require("dotenv/config");
 
 const bodyParser = require("body-parser");
 const Stats = require('./schemas/Stats');
+const Scores = require('./schemas/Scores');
 
 //MIDDLEWARES
 app.use(bodyParser.json());
@@ -48,6 +49,39 @@ app.post('/', async (req,res)=>{
         });
         const savedStats = await stats.save();
         res.json(savedStats);
+    } catch (error) {
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+app.post('/scores', async (req,res)=>{
+    try {
+        console.log("body",req.body);
+        const scores = new Scores({
+            boardId: req.body.boardId,
+            boardName: req.body.boardName,
+            playerName: req.body.playerName,
+            scores: req.body.scores,
+        });
+        const savedScores = await scores.save();
+        res.json(savedScores);
+    } catch (error) {
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+app.get('/scores',async (req,res)=>{
+    try {
+        let {boardId,page,size} = req.query;
+
+        const filter = boardId ? {boardId:boardId} : {};
+        if(!page) page = 1;
+        if(!size) size = 10;
+
+        const scores = await Scores.find(filter).limit(size).skip((page-1)*size);
+        res.json(scores);
     } catch (error) {
         console.log(error);
         res.json({message: error});
