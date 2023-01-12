@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const ScoreSchema = mongoose.Schema({
-    boardId: {
-        type: String,
-        required:true
-    },
     boardName: {
         type: String,
         required:true
@@ -19,7 +15,7 @@ const ScoreSchema = mongoose.Schema({
     },
     date: {
         type: String,
-        default: Date.now,
+        required: true
     },
 });
 

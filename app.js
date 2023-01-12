@@ -30,42 +30,32 @@ app.use(function (req, res, next) {
 });
 
 //ROUTES
-app.get('/',async (req,res)=>{
-    try {
-        const stats = await Stats.find();
-        res.json(stats);
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.post('/', async (req,res)=>{
-    try {
-        console.log("body",req.body);
-        const stats = new Stats({
-            waveName: req.body.waveName,
-            remainingHp: req.body.remainingHp
-        });
-        const savedStats = await stats.save();
-        res.json(savedStats);
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
 app.post('/scores', async (req,res)=>{
     try {
         console.log("body",req.body);
-        const scores = new Scores({
-            boardId: req.body.boardId,
+        const newEntry = new Scores({
             boardName: req.body.boardName,
             playerName: req.body.playerName,
             scores: req.body.scores,
+            date: req.body.date
         });
-        const savedScores = await scores.save();
-        res.json(savedScores);
+
+        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,playerName:newEntry.playerName});
+
+        if(existingEntry){
+            if(existingEntry.scores < newEntry.scores){
+                const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date});
+                res.json(updatedEntry);
+            }else{
+                res.json(null);
+            }
+        }else{
+            const updatedEntry = await newEntry.save();
+            res.json(updatedEntry);
+        }
+       
+
+     
     } catch (error) {
         console.log(error);
         res.json({message: error});
@@ -81,7 +71,7 @@ app.get('/scores',async (req,res)=>{
         if(!size) size = 10;
 
         const scores = await Scores.find(filter).limit(size).skip((page-1)*size);
-        res.json(scores);
+        res.json({page:page,size:size,data:scores});
     } catch (error) {
         console.log(error);
         res.json({message: error});
