@@ -44,7 +44,7 @@ app.post('/scores', async (req,res)=>{
 
         if(existingEntry){
             if(existingEntry.scores < newEntry.scores){
-                const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date});
+                const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date},{new:true});
                 res.json(updatedEntry);
             }else{
                 res.json(null);
