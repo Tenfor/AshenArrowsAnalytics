@@ -5,8 +5,8 @@ const mongoose = require('mongoose');
 require("dotenv/config");
 
 const bodyParser = require("body-parser");
-const Stats = require('./schemas/Stats');
 const Scores = require('./schemas/Scores');
+const Statistics = require('./schemas/Statistics');
 
 //MIDDLEWARES
 app.use(bodyParser.json());
@@ -30,6 +30,63 @@ app.use(function (req, res, next) {
 });
 
 //ROUTES
+//Stats
+app.post('/stats', async (req,res)=>{
+    try {
+        console.log("body",req.body);
+        const newStats = new Statistics({
+            eventName: req.body.eventName,
+            playerName: req.body.playerName,
+            data: req.body.data,
+            date: req.body.date,
+            override: req.body.override
+        });      
+        if(newStats.override){
+            const updatedStats =  await Statistics.findOneAndUpdate(
+                {
+                    eventName:newStats.eventName,
+                    playerName:newStats.playerName},
+                {
+                    $set:{
+                    eventName:newStats.eventName,
+                    playerName:newStats.playerName,
+                    data:newStats.data,
+                    date:newStats.date,
+                    override:newStats.override
+                }},
+                {
+                    upsert:true,
+                    new:true
+                }
+            );
+            res.send(updatedStats);
+        }else{
+            const savedStats = await newStats.save();
+            res.send(savedStats);
+        }
+       
+        
+    } catch (error) {
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+app.get('/stats',async (req,res)=>{
+    try {
+        let {page,size} = req.query;
+        if(!page) page = 1;
+        if(!size) size = 10;
+        const stats = await Statistics.find().limit(size).skip((page-1)*size);
+        res.json({page:page,size:size,data:stats});
+    } catch (error) {
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+
+//Scores
 app.post('/scores', async (req,res)=>{
     try {
         console.log("body",req.body);
