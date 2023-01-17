@@ -34,38 +34,42 @@ app.use(function (req, res, next) {
 app.post('/stats', async (req,res)=>{
     try {
         console.log("body",req.body);
-        const newStats = new Statistics({
-            eventName: req.body.eventName,
-            playerName: req.body.playerName,
-            data: req.body.data,
-            date: req.body.date,
-            override: req.body.override
-        });      
-        if(newStats.override){
-            const updatedStats =  await Statistics.findOneAndUpdate(
-                {
-                    eventName:newStats.eventName,
-                    playerName:newStats.playerName},
-                {
-                    $set:{
-                    eventName:newStats.eventName,
-                    playerName:newStats.playerName,
-                    data:newStats.data,
-                    date:newStats.date,
-                    override:newStats.override
-                }},
-                {
-                    upsert:true,
-                    new:true
-                }
-            );
-            res.send(updatedStats);
-        }else{
-            const savedStats = await newStats.save();
-            res.send(savedStats);
+        let uploadedStats = [];
+
+        for(let stat of req.body.stats){
+            const newStats = new Statistics({
+                eventName: stat.eventName,
+                playerName: stat.playerName,
+                data: stat.data,
+                date: stat.date,
+                override: stat.override
+            });      
+            if(newStats.override){
+               const savedStat = await Statistics.findOneAndUpdate(
+                    {
+                        eventName:newStats.eventName,
+                        playerName:newStats.playerName},
+                    {
+                        $set:{
+                        eventName:newStats.eventName,
+                        playerName:newStats.playerName,
+                        data:newStats.data,
+                        date:newStats.date,
+                        override:newStats.override
+                    }},
+                    {
+                        upsert:true,
+                        new:true
+                    }
+                );
+                uploadedStats.push(savedStat);
+            }else{
+                const savedStat = await newStats.save();
+                uploadedStats.push(savedStat);
+            }
         }
-       
-        
+
+        res.json(uploadedStats);
     } catch (error) {
         console.log(error);
         res.json({message: error});
