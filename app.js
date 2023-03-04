@@ -98,7 +98,7 @@ app.post('/scores', async (req,res)=>{
             boardName: req.body.boardName,
             playerName: req.body.playerName,
             scores: req.body.scores,
-            date: req.body.date
+            date: Date.now()
         });
 
         const existingEntry = await Scores.findOne({boardName:newEntry.boardName,playerName:newEntry.playerName});
@@ -125,13 +125,18 @@ app.post('/scores', async (req,res)=>{
 
 app.get('/scores',async (req,res)=>{
     try {
-        let {boardId,page,size} = req.query;
+        let {boardId,page,size,sort, order} = req.query;
 
         const filter = boardId ? {boardId:boardId} : {};
         if(!page) page = 1;
         if(!size) size = 10;
+        if(!sort) sort = "scores";
+        if(!order) order = -1;
 
-        const scores = await Scores.find(filter).limit(size).skip((page-1)*size);
+        let sortObject = {};
+        sortObject[sort] = order;
+      
+        const scores = await Scores.find(filter).limit(size).skip((page-1)*size).sort(sortObject);
         res.json({page:page,size:size,data:scores});
     } catch (error) {
         console.log(error);
