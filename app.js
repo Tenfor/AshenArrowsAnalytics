@@ -98,7 +98,7 @@ app.post('/scores', async (req,res)=>{
             boardName: req.body.boardName,
             playerName: req.body.playerName,
             scores: req.body.scores,
-            date: Date.now()
+            date: req.body.date
         });
 
         const existingEntry = await Scores.findOne({boardName:newEntry.boardName,playerName:newEntry.playerName});
