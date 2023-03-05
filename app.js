@@ -125,9 +125,9 @@ app.post('/scores', async (req,res)=>{
 
 app.get('/scores',async (req,res)=>{
     try {
-        let {boardId,page,size,sort, order} = req.query;
+        let {boardName,page,size,sort, order} = req.query;
 
-        const filter = boardId ? {boardId:boardId} : {};
+        const filter = boardName ? {boardName:boardName} : {};
         if(!page) page = 1;
         if(!size) size = 10;
         if(!sort) sort = "scores";
