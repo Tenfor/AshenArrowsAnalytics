@@ -127,6 +127,7 @@ app.post('/scores', async (req,res)=>{
 app.post('/crash', async (req,res)=>{
     try {
         console.log("body",req.body); 
+        res.json(req.body);
     } catch (error) {
         console.log(error);
         res.json({message: error});
