@@ -123,6 +123,16 @@ app.post('/scores', async (req,res)=>{
     }
 });
 
+//crash
+app.post('/crash', async (req,res)=>{
+    try {
+        console.log("body",req.body); 
+    } catch (error) {
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
 app.get('/scores',async (req,res)=>{
     try {
         let {boardName,page,size,sort, order} = req.query;
