@@ -7,6 +7,7 @@ require("dotenv/config");
 const bodyParser = require("body-parser");
 const Scores = require('./schemas/Scores');
 const Statistics = require('./schemas/Statistics');
+const Guid = require('./schemas/Guid');
 
 //MIDDLEWARES
 app.use(bodyParser.json());
@@ -88,28 +89,20 @@ app.get('/stats',async (req,res)=>{
         res.json({message: error});
     }
 });
-
-
-//Scores
-app.post('/scores', async (req,res)=>{
+//guid
+app.post('/guid', async (req,res)=>{
     try {
         console.log("body",req.body);
-        const newEntry = new Scores({
-            boardName: req.body.boardName,
+        const newEntry = new Guid({
             playerName: req.body.playerName,
-            scores: req.body.scores,
-            date: req.body.date
+            guid: req.body.guid,
         });
 
-        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,playerName:newEntry.playerName});
+        const existingEntry = await Guid.findOne({playerName:newEntry.playerName});
 
         if(existingEntry){
-            if(existingEntry.scores < newEntry.scores){
-                const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date},{new:true});
+                const updatedEntry = await Guid.findByIdAndUpdate(existingEntry._id,{guid:newEntry.guid, playerName:newEntry.playerName},{new:true});
                 res.json(updatedEntry);
-            }else{
-                res.json(null);
-            }
         }else{
             const updatedEntry = await newEntry.save();
             res.json(updatedEntry);
@@ -123,11 +116,64 @@ app.post('/scores', async (req,res)=>{
     }
 });
 
-//crash
-app.post('/crash', async (req,res)=>{
+
+//Scores
+app.post('/scores', async (req,res)=>{
     try {
-        console.log("body",req.body); 
-        res.json(req.body);
+
+        // //check guid 
+        // const guid = req.body.guid;
+   
+        let {boardName, realmName, mapName, playerName, scores, date, guid} = req.body;
+        let errors = [];
+        if(!boardName) errors.push("boardName field is missing from body");
+        if(!realmName) errors.push("boardName field is missing from body");
+        if(!mapName) errors.push("boardName field is missing from body");
+        if(!playerName) errors.push("playerName field is missing from body");
+        if(!scores) errors.push("scores field is missing from body");
+        if(!date) errors.push("date field is missing from body");
+        if(!guid) errors.push("guid field is missing from body");
+
+        if(errors.length){
+            res.json({message: errors});
+            return;
+        }
+
+        const existingGuid = await Guid.findOne({guid:guid});
+        if(!existingGuid || existingGuid.playerName !== req.body.playerName){
+            res.json({message:"guid is invalid"});
+            return;
+        }
+
+        console.log("body",req.body);
+        const newEntry = new Scores({
+            boardName: boardName,
+            realmName: realmName,
+            mapName: mapName,
+            playerName: playerName,
+            scores: scores,
+            date: date,
+        });
+
+        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName});
+
+        if(existingEntry){
+            if(existingEntry.scores < newEntry.scores){
+                const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date},{new:true});
+                res.json(updatedEntry);
+                return;
+            }else{
+                res.json({message:"The sent score is not bigger than the latest entry."});
+                return;
+            }
+        }else{
+            const updatedEntry = await newEntry.save();
+            res.json(updatedEntry);
+            return;
+        }
+       
+
+     
     } catch (error) {
         console.log(error);
         res.json({message: error});
@@ -136,7 +182,7 @@ app.post('/crash', async (req,res)=>{
 
 app.get('/scores',async (req,res)=>{
     try {
-        let {boardName,page,size,sort, order} = req.query;
+        let {boardName,page,size,sort,order,playerName} = req.query;
 
         const filter = boardName ? {boardName:boardName} : {};
         if(!page) page = 1;
@@ -148,7 +194,8 @@ app.get('/scores',async (req,res)=>{
         sortObject[sort] = order;
       
         const scores = await Scores.find(filter).limit(size).skip((page-1)*size).sort(sortObject);
-        res.json({page:page,size:size,data:scores});
+        const playerScore = await Scores.findOne({playerName:playerName});
+        res.json({page:page,size:size,data:scores, playerData:playerScore});
     } catch (error) {
         console.log(error);
         res.json({message: error});

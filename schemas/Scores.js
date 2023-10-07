@@ -5,6 +5,14 @@ const ScoreSchema = mongoose.Schema({
         type: String,
         required:true
     },
+    realmName: {
+        type: String,
+        required:true
+    },
+    mapName: {
+        type: String,
+        required:true
+    },
     playerName: {
         type: String,
         required:true
