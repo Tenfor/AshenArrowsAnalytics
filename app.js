@@ -182,9 +182,25 @@ app.post('/scores', async (req,res)=>{
 
 app.get('/scores',async (req,res)=>{
     try {
-        let {boardName,page,size,sort,order,playerName} = req.query;
+        let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.query;
 
-        const filter = boardName ? {boardName:boardName} : {};
+        if(!playerName){
+            res.json({message:"playerName is missing from the query"});
+            return;
+        }
+        
+        const filter = {};
+
+        if(boardName){
+            filter.boardName = boardName;
+        }  
+        if(realmName){
+            filter.realmName = realmName;
+        }
+        if(mapName){
+            filter.mapName = mapName;
+        }
+
         if(!page) page = 1;
         if(!size) size = 10;
         if(!sort) sort = "scores";
