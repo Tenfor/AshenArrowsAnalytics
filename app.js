@@ -134,7 +134,7 @@ app.post('/scores', async (req,res)=>{
         if(!date) errors.push("date field is missing from body");
         if(!guid) errors.push("guid field is missing from body");
 
-        console.log(body);
+        console.log(req.body);
 
         if(errors.length){
             res.json({message: errors});
