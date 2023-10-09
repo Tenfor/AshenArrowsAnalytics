@@ -184,12 +184,10 @@ app.get('/scores',async (req,res)=>{
     try {
         let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.query;
 
-        console.log(query);
+        console.log(req.query);
 
         if(!playerName){
             throw new Error("playerName is missing from the query");
-            res.json({message:"playerName is missing from the query"});
-            return;
         }
         
         const filter = {};
