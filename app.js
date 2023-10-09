@@ -134,10 +134,13 @@ app.post('/scores', async (req,res)=>{
         if(!date) errors.push("date field is missing from body");
         if(!guid) errors.push("guid field is missing from body");
 
+        console.log(body);
+
         if(errors.length){
             res.json({message: errors});
             return;
         }
+
 
         const existingGuid = await Guid.findOne({playerName:playerName});
         if(!existingGuid || existingGuid.guid !== req.body.guid){
