@@ -139,8 +139,8 @@ app.post('/scores', async (req,res)=>{
             return;
         }
 
-        const existingGuid = await Guid.findOne({guid:guid});
-        if(!existingGuid || existingGuid.playerName !== req.body.playerName){
+        const existingGuid = await Guid.findOne({playerName:playerName});
+        if(!existingGuid || existingGuid.guid !== req.body.guid){
             res.json({message:"guid is invalid"});
             return;
         }
