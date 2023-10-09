@@ -119,11 +119,7 @@ app.post('/guid', async (req,res)=>{
 
 //Scores
 app.post('/scores', async (req,res)=>{
-    try {
-
-        // //check guid 
-        // const guid = req.body.guid;
-   
+    try {   
         let {boardName, realmName, mapName, playerName, scores, date, guid} = req.body;
         let errors = [];
         if(!boardName) errors.push("boardName field is missing from body");
@@ -188,7 +184,10 @@ app.get('/scores',async (req,res)=>{
     try {
         let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.query;
 
+        console.log(query);
+
         if(!playerName){
+            throw new Error("playerName is missing from the query");
             res.json({message:"playerName is missing from the query"});
             return;
         }
