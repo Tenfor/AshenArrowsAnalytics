@@ -192,10 +192,10 @@ app.get('/scores',async (req,res)=>{
         
         const filter = {};
 
-        if(boardName && boardName !== "BestOfAll"){
+        if(boardName){
             filter.boardName = boardName;
         }  
-        if(realmName){
+        if(realmName && realmName !== "BestOfAll"){
             filter.realmName = realmName;
         }
         if(mapName){
