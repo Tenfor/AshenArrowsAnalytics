@@ -233,6 +233,26 @@ app.get('/testget',async (req,res)=>{
     }
 });
 
+app.post('/testpostbody',async (req,res)=>{
+    try {
+        res.status(200).json({message:"Test Post work!",body:req.body});
+    }
+    catch(error){
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+app.get('/testgetquery',async (req,res)=>{
+    try {
+        res.status(200).json({message:"Test get work!",query:req.query});
+    }
+    catch(error){
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
 //CONNECT TO MONGODB
 mongoose.connect(process.env.DB_CONNECTION, ()=>{
     console.log('connected');
