@@ -102,10 +102,10 @@ app.post('/guid', async (req,res)=>{
 
         if(existingEntry){
                 const updatedEntry = await Guid.findByIdAndUpdate(existingEntry._id,{guid:newEntry.guid, playerName:newEntry.playerName},{new:true});
-                res.json(updatedEntry);
+                res.status(200).json({data:updatedEntry});
         }else{
             const updatedEntry = await newEntry.save();
-            res.json(updatedEntry);
+            res.status(200).json({data:updatedEntry});
         }
        
 
