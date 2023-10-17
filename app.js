@@ -122,22 +122,15 @@ app.post('/scores', async (req,res)=>{
     try {   
         let {boardName, realmName, mapName, playerName, scores, date, guid} = req.body;
         let errors = [];
-        if(!boardName) errors.push("boardName field is missing from body");
-        if(!realmName) errors.push("boardName field is missing from body");
-        if(!mapName) errors.push("boardName field is missing from body");
-        if(!playerName) errors.push("playerName field is missing from body");
-        if(!scores) errors.push("scores field is missing from body");
-        if(!date) errors.push("date field is missing from body");
-        if(!guid) errors.push("guid field is missing from body");
+        if(!boardName) throw new Error("boardName field is missing from body");
+        if(!realmName) throw new Error("boardName field is missing from body");
+        if(!mapName) throw new Error("boardName field is missing from body");
+        if(!playerName) throw new Error("playerName field is missing from body");
+        if(!scores) throw new Error("scores field is missing from body");
+        if(!date) throw new Error("date field is missing from body");
+        if(!guid) throw new Error("guid field is missing from body");
 
-        console.log(req.body);
-
-        if(errors.length){
-            res.json({message: errors});
-            return;
-        }
-
-        console.log(playerName);
+        console.log("POST SCORES", req.body);
         const existingGuid = await Guid.findOne({playerName:playerName});
 
         if(!existingGuid || existingGuid.guid !== guid){
@@ -184,7 +177,7 @@ app.get('/scores',async (req,res)=>{
     try {
         let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.query;
 
-        console.log(req.query);
+        console.log("GET SCORES", req.query);
 
         if(!playerName){
             throw new Error("playerName is missing from the query");
@@ -211,9 +204,30 @@ app.get('/scores',async (req,res)=>{
         sortObject[sort] = order;
       
         const scores = await Scores.find(filter).limit(size).skip((page-1)*size).sort(sortObject);
-        const playerScore = await Scores.findOne({playerName:playerName});
-        res.json({page:page,size:size,data:scores, playerData:playerScore});
+        const playerScore = await Scores.findOne({filter});
+        let playerData = playerScore ? playerScore : {playerName:playerName, scores:0}
+        res.json({page:page,size:size,data:scores, playerData:playerData});
     } catch (error) {
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+app.post('/testpost',async (req,res)=>{
+    try {
+        res.status(200).send("Test Post work!");
+    }
+    catch(error){
+        console.log(error);
+        res.json({message: error});
+    }
+});
+
+app.get('/testget',async (req,res)=>{
+    try {
+        res.status(200).send("Test get work!");
+    }
+    catch(error){
         console.log(error);
         res.json({message: error});
     }
