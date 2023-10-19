@@ -5,10 +5,10 @@ const mongoose = require('mongoose');
 require("dotenv/config");
 
 const bodyParser = require("body-parser");
-const Scores = require('./schemas/Scores');
-const Statistics = require('./schemas/Statistics');
-const Guid = require('./schemas/Guid');
-
+const guidController = require("./controllers/guidController");
+const statController = require("./controllers/statController");
+const scoreController = require("./controllers/scoreController");
+const testController = require("./controllers/testController");
 //MIDDLEWARES
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
@@ -32,226 +32,20 @@ app.use(function (req, res, next) {
 
 //ROUTES
 //Stats
-app.post('/stats', async (req,res)=>{
-    try {
-        console.log("body",req.body);
-        let uploadedStats = [];
-
-        for(let stat of req.body.stats){
-            const newStats = new Statistics({
-                eventName: stat.eventName,
-                playerName: stat.playerName,
-                data: stat.data,
-                date: stat.date,
-                override: stat.override
-            });      
-            if(newStats.override){
-               const savedStat = await Statistics.findOneAndUpdate(
-                    {
-                        eventName:newStats.eventName,
-                        playerName:newStats.playerName},
-                    {
-                        $set:{
-                        eventName:newStats.eventName,
-                        playerName:newStats.playerName,
-                        data:newStats.data,
-                        date:newStats.date,
-                        override:newStats.override
-                    }},
-                    {
-                        upsert:true,
-                        new:true
-                    }
-                );
-                uploadedStats.push(savedStat);
-            }else{
-                const savedStat = await newStats.save();
-                uploadedStats.push(savedStat);
-            }
-        }
-
-        res.json(uploadedStats);
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.get('/stats',async (req,res)=>{
-    try {
-        let {page,size} = req.query;
-        if(!page) page = 1;
-        if(!size) size = 10;
-        const stats = await Statistics.find().limit(size).skip((page-1)*size);
-        res.json({page:page,size:size,data:stats});
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
+app.post('/stats',statController.postStats);
+app.get('/stats',statController.getStats);
 //guid
-app.post('/guid', async (req,res)=>{
-    try {
-        console.log("body",req.body);
-        const newEntry = new Guid({
-            playerName: req.body.playerName,
-            guid: req.body.guid,
-        });
-
-        const existingEntry = await Guid.findOne({playerName:newEntry.playerName});
-
-        if(existingEntry){
-                const updatedEntry = await Guid.findByIdAndUpdate(existingEntry._id,{guid:newEntry.guid, playerName:newEntry.playerName},{new:true});
-                res.status(200).json({data:updatedEntry});
-        }else{
-            const updatedEntry = await newEntry.save();
-            res.status(200).json({data:updatedEntry});
-        }
-       
-
-     
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
+app.post('/guid', guidController.postGuid);
 
 //Scores
-app.post('/scores', async (req,res)=>{
-    try {   
-        let {boardName, realmName, mapName, playerName, scores, date, guid} = req.body;
-        let errors = [];
-        if(!boardName) throw new Error("boardName field is missing from body");
-        if(!realmName) throw new Error("boardName field is missing from body");
-        if(!mapName) throw new Error("boardName field is missing from body");
-        if(!playerName) throw new Error("playerName field is missing from body");
-        if(!scores) throw new Error("scores field is missing from body");
-        if(!date) throw new Error("date field is missing from body");
-        if(!guid) throw new Error("guid field is missing from body");
+app.post('/scores',scoreController.postScores);
+app.get('/scores',scoreController.getScores);
 
-        console.log("POST SCORES", req.body);
-        const existingGuid = await Guid.findOne({playerName:playerName});
-
-        if(!existingGuid || existingGuid.guid !== guid){
-            res.json({message:"guid is invalid"});
-            return;
-        }
-
-        console.log("body",req.body);
-        const newEntry = new Scores({
-            boardName: boardName,
-            realmName: realmName,
-            mapName: mapName,
-            playerName: playerName,
-            scores: scores,
-            date: date,
-        });
-
-        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName});
-
-        if(existingEntry){
-            if(existingEntry.scores < newEntry.scores){
-                const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date},{new:true});
-                res.json(updatedEntry);
-                return;
-            }else{
-                res.json({message:"The sent score is not bigger than the latest entry."});
-                return;
-            }
-        }else{
-            const updatedEntry = await newEntry.save();
-            res.json(updatedEntry);
-            return;
-        }
-       
-
-     
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.get('/scores',async (req,res)=>{
-    try {
-        let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.query;
-
-        console.log("GET SCORES", req.query);
-
-        if(!playerName){
-            throw new Error("playerName is missing from the query");
-        }
-        
-        const filter = {};
-
-        if(boardName){
-            filter.boardName = boardName;
-        }  
-        if(realmName && realmName !== "BestOfAll"){
-            filter.realmName = realmName;
-        }
-        if(mapName){
-            filter.mapName = mapName;
-        }
-
-        if(!page) page = 1;
-        if(!size) size = 10;
-        if(!sort) sort = "scores";
-        if(!order) order = -1;
-
-        let sortObject = {};
-        sortObject[sort] = order;
-      
-        const scores = await Scores.find(filter).limit(size).skip((page-1)*size).sort(sortObject);
-        const playerScore = await Scores.findOne({filter});
-        let playerData = playerScore ? playerScore : {playerName:playerName, scores:0}
-        res.json({page:page,size:size,data:scores, playerData:playerData});
-    } catch (error) {
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.post('/testpost',async (req,res)=>{
-    try {
-        res.status(200).send("Test Post work!");
-    }
-    catch(error){
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.get('/testget',async (req,res)=>{
-    try {
-        res.status(200).send("Test get work!");
-    }
-    catch(error){
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.post('/testpostbody',async (req,res)=>{
-    try {
-        res.status(200).json({message:"Test Post work!",body:req.body});
-    }
-    catch(error){
-        console.log(error);
-        res.json({message: error});
-    }
-});
-
-app.get('/testgetquery',async (req,res)=>{
-    try {
-        res.status(200).json({message:"Test get work!",query:req.query});
-    }
-    catch(error){
-        console.log(error);
-        res.json({message: error});
-    }
-});
+//Test
+app.post('/testpost',testController.testPost);
+app.get('/testget',testController.testGet);
+app.post('/testpostbody',testController.testPostBody);
+app.get('/testgetquery',testController.testGetQuery);
 
 //CONNECT TO MONGODB
 mongoose.connect(process.env.DB_CONNECTION, ()=>{
