@@ -33,19 +33,15 @@ const postScores = async (req,res)=>{
         const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName});
 
         if(existingEntry){
-            console.log("test");
             if(existingEntry.scores < newEntry.scores){
-                console.log("test2");
                 const updatedEntry = await Scores.findByIdAndUpdate(existingEntry._id,{scores:newEntry.scores, date:newEntry.date},{new:true});
                 res.status(200).json(updatedEntry);
                 return;
             }else{
-                console.log("test3");
                 res.status(400).json({message:"The sent score is not bigger than the latest entry."});
                 return;
             }
         }else{
-            console.log("test4");
             const updatedEntry = await newEntry.save();
             res.status(200).json(updatedEntry);
             return;
