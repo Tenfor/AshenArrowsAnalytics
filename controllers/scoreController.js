@@ -89,7 +89,7 @@ const getScores = async (req,res)=>{
       
         const scores = await Scores.find(filter).limit(size).skip((page-1)*size).sort(sortObject);
         const playerScore = await Scores.findOne({...filter,playerName:playerName});
-        let playerData = {playerName:playerName, scores:0, rank:9999};
+        let playerData = {playerName:playerName, scores:0, rank:-1};
         if(playerScore){
             const playerRank = await Scores.find({ ...filter, scores: { $gt: playerScore.scores } }).countDocuments() + 1;
             playerData = {...playerScore._doc,rank:playerRank} 
