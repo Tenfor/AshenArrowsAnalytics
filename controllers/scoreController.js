@@ -73,7 +73,7 @@ const getScores = async (req,res)=>{
         if(realmName && realmName !== "BestOfAll"){
             filter.realmName = realmName;
         }
-        if(mapName){
+        if(mapName && mapName !== "NA"){
             filter.mapName = mapName;
         }
 
