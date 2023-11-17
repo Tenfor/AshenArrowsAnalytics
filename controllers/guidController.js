@@ -2,7 +2,7 @@ const Guid = require("../schemas/Guid");
 
 const postGuid = async (req,res)=>{
     try {
-        console.log("body",req.body);
+        console.log("POST GUID",req.body);
         if(!req.body.playerName) throw new Error("playerName is missing from body");
         if(!req.body.guid) throw new Error("guid is missing from body");
         const newEntry = new Guid({

@@ -39,7 +39,7 @@ app.post('/guid', guidController.postGuid);
 
 //Scores
 app.post('/scores',scoreController.postScores);
-app.get('/scores',scoreController.getScores);
+app.post('/getscores',scoreController.getScores);
 
 //Test
 app.post('/testpost',testController.testPost);

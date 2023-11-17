@@ -20,7 +20,6 @@ const postScores = async (req,res)=>{
             return;
         }
 
-        console.log("body",req.body);
         const newEntry = new Scores({
             boardName: boardName,
             realmName: realmName,
@@ -57,12 +56,12 @@ const postScores = async (req,res)=>{
 
 const getScores = async (req,res)=>{
     try {
-        let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.query;
+        let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.body;
 
-        console.log("GET SCORES", req.query);
+        console.log("GET SCORES", req.body);
 
         if(!playerName){
-            throw new Error("playerName is missing from the query");
+            throw new Error("playerName is missing from the body");
         }
         
         const filter = {};
@@ -76,8 +75,6 @@ const getScores = async (req,res)=>{
         if(mapName && mapName !== "NA"){
             filter.mapName = mapName;
         }
-
-        console.log(filter);
 
         if(!page) page = 1;
         if(!size) size = 10;
