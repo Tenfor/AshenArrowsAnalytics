@@ -2,7 +2,7 @@ const Guid = require("../schemas/Guid");
 const Scores = require("../schemas/Scores");
 const postScores = async (req,res)=>{
     try {   
-        let {boardName, realmName, mapName, playerName, scores, date, guid} = req.body;
+        let {boardName, realmName, mapName, playerName, scores, date, guid, playerNumber} = req.body;
         if(!boardName) throw new Error("boardName field is missing from body");
         if(!realmName) throw new Error("realmName field is missing from body");
         if(!mapName) throw new Error("mapName field is missing from body");
@@ -10,6 +10,7 @@ const postScores = async (req,res)=>{
         if(!scores) throw new Error("scores field is missing from body");
         if(!date) throw new Error("date field is missing from body");
         if(!guid) throw new Error("guid field is missing from body");
+        if(!playerNumber) throw new Error("playerNumber field is missing from body");
 
         console.log("POST SCORES", req.body);
         const existingGuid = await Guid.findOne({playerName:playerName});
@@ -130,7 +131,7 @@ const getBestOfAll = async (req,res)=>{
         const scores = await Scores.aggregate([
             { $match: {boardName: boardName, playerNumber:playerNumber}},
             { $group: { 
-                _id: "$_id", 
+                _id: "$playerName", 
                 playerName: { $first: "$playerName" },
                 boardName: { $first: "$boardName" },
                 realmName: { $first: "$realmName" },
@@ -142,8 +143,43 @@ const getBestOfAll = async (req,res)=>{
             { $sort: { [sortField]: order } },
             { $skip: (page-1) * size }
           ]);
+
+          const playerScore = await Scores.aggregate([
+            { $match: {boardName: boardName, playerNumber:playerNumber, playerName:playerName}},
+            { $group: { 
+                _id: "$playerName", 
+                playerName: { $first: "$playerName" },
+                boardName: { $first: "$boardName" },
+                realmName: { $first: "$realmName" },
+                mapName: { $first: "$mapName" },
+                date: { $first: "$date" },
+                playerNumber: { $first: "$playerNumber" },
+                scores: { $max: "$scores" } }
+            },
+            { $sort: { [sortField]: order } },
+            { $skip: (page-1) * size }
+          ]);
+
+          let playerData = {playerName:playerName, scores:0, rank:-1};
+
+          if(playerScore.length){
+            const playerRank = await Scores.aggregate([
+                {
+                  $match: { boardName: boardName, playerNumber: playerNumber, scores: { $gt: playerScore[0].scores } },
+                },
+                {
+                  $group: {
+                    _id: "$playerName",
+                    scores: { $max: "$scores" },
+                    count: { $sum: 1 },
+                  },
+                },
+                { $sort: { [sortField]: order } },
+              ]);
+              playerData = {...playerScore[0],rank:playerRank.length ? playerRank[0].count+1 : 1} 
+          }
       
-          res.status(200).json({page:page,size:size,data:scores});
+          res.status(200).json({page:page,size:size,data:scores, playerData:playerData});
         } catch (err) {
           res.status(500).json({ message: err.message });
         }
