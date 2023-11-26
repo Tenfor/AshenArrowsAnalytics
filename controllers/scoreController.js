@@ -56,25 +56,32 @@ const postScores = async (req,res)=>{
 
 const getScores = async (req,res)=>{
     try {
-        let {boardName,mapName, realmName, page,size,sort,order,playerName} = req.body;
+        let {boardName,mapName, realmName, page,size,sort,order,playerName, playerNumber} = req.body;
 
         console.log("GET SCORES", req.body);
 
         if(!playerName){
             throw new Error("playerName is missing from the body");
         }
+        if(!boardName){
+            throw new Error("boardName is missing from the body");
+        }
+        if(!realmName){
+            throw new Error("realmName is missing from the body");
+        }
+        if(!mapName){
+            throw new Error("mapName is missing from the body");
+        }
+        if(!playerNumber){
+            playerNumber = 1;
+        }
         
-        const filter = {};
-
-        if(boardName){
-            filter.boardName = boardName;
-        }  
-        if(realmName && realmName !== "BestOfAll"){
-            filter.realmName = realmName;
-        }
-        if(mapName && mapName !== "NA"){
-            filter.mapName = mapName;
-        }
+        const filter = {
+            playerNumber:playerNumber,
+            boardName: boardName,
+            realmName: realmName,
+            mapName: mapName
+        };
 
         if(!page) page = 1;
         if(!size) size = 10;
@@ -98,4 +105,65 @@ const getScores = async (req,res)=>{
     }
 };
 
-module.exports = {getScores, postScores};
+const getBestOfAll = async (req,res)=>{
+    try {
+        let {boardName,page,size,sort,order,playerName, playerNumber} = req.body;
+
+        console.log("GET BEST OF ALL", req.body);
+
+        if(!boardName){
+            throw new Error("boardName is missing from the body");
+        }
+        if(!playerName){
+            throw new Error("playerName is missing from the body");
+        }
+
+        if(!playerNumber) playerNumber = 1;
+
+        if(!page) page = 1;
+        if(!size) size = 10;
+        if(!sort) sort = "scores";
+        if(!order) order = -1;
+
+        const sortField = `${sort}`;
+
+        const scores = await Scores.aggregate([
+            { $match: {boardName: boardName, playerNumber:playerNumber}},
+            { $group: { 
+                _id: "$_id", 
+                playerName: { $first: "$playerName" },
+                boardName: { $first: "$boardName" },
+                realmName: { $first: "$realmName" },
+                mapName: { $first: "$mapName" },
+                date: { $first: "$date" },
+                playerNumber: { $first: "$playerNumber" },
+                scores: { $max: "$scores" } }
+            },
+            { $sort: { [sortField]: order } },
+            { $skip: (page-1) * size }
+          ]);
+      
+          res.status(200).json({page:page,size:size,data:scores});
+        } catch (err) {
+          res.status(500).json({ message: err.message });
+        }
+};
+
+const updatedb = async (req, res) =>{
+    try {
+        // Minden elemet lekérünk a táblából
+        const scores = await Scores.find({});
+    
+        // Minden elemhez hozzáadjuk a playerNumber: 1 értéket
+        for (let i = 0; i < scores.length; i++) {
+          scores[i].playerNumber = 1;
+          await scores[i].save();
+        }
+    
+        res.status(200).json({ message: 'PlayerNumber frissítve minden pontszámnál.' });
+      } catch (err) {
+        res.status(500).json({ error: 'Hiba történt a frissítés során.', details: err.message });
+      }
+}
+
+module.exports = {getScores, postScores, getBestOfAll, updatedb};

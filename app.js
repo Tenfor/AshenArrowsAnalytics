@@ -40,12 +40,18 @@ app.post('/guid', guidController.postGuid);
 //Scores
 app.post('/scores',scoreController.postScores);
 app.post('/getscores',scoreController.getScores);
+app.post('/getbestofall',scoreController.getBestOfAll);
 
 //Test
 app.post('/testpost',testController.testPost);
 app.get('/testget',testController.testGet);
 app.post('/testpostbody',testController.testPostBody);
 app.get('/testgetquery',testController.testGetQuery);
+
+
+//update db
+app.post('/updatedb', scoreController.updatedb);
+  
 
 //CONNECT TO MONGODB
 mongoose.connect(process.env.DB_CONNECTION, ()=>{
