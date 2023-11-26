@@ -38,7 +38,7 @@ app.get('/stats',statController.getStats);
 app.post('/guid', guidController.postGuid);
 
 //Scores
-app.post('/scores',scoreController.postScores);
+app.post('/addscores',scoreController.postScores);
 app.post('/getscores',scoreController.getScores);
 app.post('/getbestofall',scoreController.getBestOfAll);
 
