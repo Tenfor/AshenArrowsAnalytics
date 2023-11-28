@@ -50,7 +50,7 @@ app.get('/testgetquery',testController.testGetQuery);
 
 
 //update db
-app.post('/updatedb', scoreController.updatedb);
+// app.post('/updatedb', scoreController.updatedb);
   
 
 //CONNECT TO MONGODB

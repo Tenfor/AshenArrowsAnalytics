@@ -28,6 +28,7 @@ const postScores = async (req,res)=>{
             playerName: playerName,
             scores: scores,
             date: date,
+            playerNumber:playerNumber
         });
 
         const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName});
@@ -185,21 +186,30 @@ const getBestOfAll = async (req,res)=>{
         }
 };
 
-const updatedb = async (req, res) =>{
-    try {
-        // Minden elemet lekérünk a táblából
-        const scores = await Scores.find({});
-    
-        // Minden elemhez hozzáadjuk a playerNumber: 1 értéket
-        for (let i = 0; i < scores.length; i++) {
-          scores[i].playerNumber = 1;
-          await scores[i].save();
-        }
-    
-        res.status(200).json({ message: 'PlayerNumber frissítve minden pontszámnál.' });
-      } catch (err) {
-        res.status(500).json({ error: 'Hiba történt a frissítés során.', details: err.message });
-      }
-}
+// const updatedb = async (req, res) =>{
+//     try {
+  
 
-module.exports = {getScores, postScores, getBestOfAll, updatedb};
+//         for (let i = 0; i < 5; i++) {
+//             let newEntry = new Scores({
+//                 boardName: "Season_0_(Beta)",
+//                 realmName: "Alfheim",
+//                 mapName: "Riverside",
+//                 playerName: `PrecreateScore_${i+1}_A,PrecreateScore_${i+1}_B,PrecreateScore_${i+1}_C`,
+//                 scores: 1000 + i,
+//                 date: Date.now(),
+//                 playerNumber: 3,
+//             });
+
+//             await newEntry.save();
+//         }
+
+//         res.status(200).json({message:"success"});
+
+     
+//       } catch (err) {
+//         res.status(500).json({ error: 'Hiba történt a frissítés során.', details: err.message });
+//       }
+// }
+
+module.exports = {getScores, postScores, getBestOfAll};
