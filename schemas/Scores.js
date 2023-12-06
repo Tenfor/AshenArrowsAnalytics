@@ -13,10 +13,6 @@ const ScoreSchema = mongoose.Schema({
         type: String,
         required:true
     },
-    mapId: {
-        type: String,
-        required:false
-    },
     playerName: {
         type: String,
         required:true
