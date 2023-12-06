@@ -2,10 +2,10 @@ const Guid = require("../schemas/Guid");
 const Scores = require("../schemas/Scores");
 const postScores = async (req,res)=>{
     try {   
-        let {boardName, realmName, mapName, playerName, scores, date, guid, playerNumber} = req.body;
+        let {boardName, realmName, mapId, playerName, scores, date, guid, playerNumber} = req.body;
         if(!boardName) throw new Error("boardName field is missing from body");
         if(!realmName) throw new Error("realmName field is missing from body");
-        if(!mapName) throw new Error("mapName field is missing from body");
+        if(!mapId) throw new Error("mapId field is missing from body");
         if(!playerName) throw new Error("playerName field is missing from body");
         if(!scores) throw new Error("scores field is missing from body");
         if(!date) throw new Error("date field is missing from body");
@@ -24,14 +24,14 @@ const postScores = async (req,res)=>{
         const newEntry = new Scores({
             boardName: boardName,
             realmName: realmName,
-            mapName: mapName,
+            mapId: mapId,
             playerName: playerName,
             scores: scores,
             date: date,
             playerNumber:playerNumber
         });
 
-        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName});
+        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapId:newEntry.mapId, playerName:newEntry.playerName});
 
         if(existingEntry){
             if(existingEntry.scores < newEntry.scores){
@@ -58,7 +58,7 @@ const postScores = async (req,res)=>{
 
 const getScores = async (req,res)=>{
     try {
-        let {boardName,mapName, realmName, page,size,sort,order,playerName, playerNumber} = req.body;
+        let {boardName,mapId, realmName, page,size,sort,order,playerName, playerNumber} = req.body;
 
         console.log("GET SCORES", req.body);
 
@@ -71,8 +71,8 @@ const getScores = async (req,res)=>{
         if(!realmName){
             throw new Error("realmName is missing from the body");
         }
-        if(!mapName){
-            throw new Error("mapName is missing from the body");
+        if(!mapId){
+            throw new Error("mapId is missing from the body");
         }
         if(!playerNumber){
             playerNumber = 1;
@@ -82,7 +82,7 @@ const getScores = async (req,res)=>{
             playerNumber:playerNumber,
             boardName: boardName,
             realmName: realmName,
-            mapName: mapName
+            mapId: mapId
         };
 
         if(!page) page = 1;
@@ -136,7 +136,7 @@ const getBestOfAll = async (req,res)=>{
                 playerName: { $first: "$playerName" },
                 boardName: { $first: "$boardName" },
                 realmName: { $first: "$realmName" },
-                mapName: { $first: "$mapName" },
+                mapId: { $first: "$mapId" },
                 date: { $first: "$date" },
                 playerNumber: { $first: "$playerNumber" },
                 scores: { $max: "$scores" } }
@@ -152,7 +152,7 @@ const getBestOfAll = async (req,res)=>{
                 playerName: { $first: "$playerName" },
                 boardName: { $first: "$boardName" },
                 realmName: { $first: "$realmName" },
-                mapName: { $first: "$mapName" },
+                mapId: { $first: "$mapId" },
                 date: { $first: "$date" },
                 playerNumber: { $first: "$playerNumber" },
                 scores: { $max: "$scores" } }
@@ -190,19 +190,22 @@ const getBestOfAll = async (req,res)=>{
 //     try {
   
 
-//         for (let i = 0; i < 5; i++) {
-//             let newEntry = new Scores({
-//                 boardName: "Season_0_(Beta)",
-//                 realmName: "Alfheim",
-//                 mapName: "Riverside",
-//                 playerName: `PrecreateScore_${i+1}_A,PrecreateScore_${i+1}_B,PrecreateScore_${i+1}_C`,
-//                 scores: 1000 + i,
-//                 date: Date.now(),
-//                 playerNumber: 3,
-//             });
+//         // for (let i = 0; i < 5; i++) {
+//         //     let newEntry = new Scores({
+//         //         boardName: "Season_0_(Beta)",
+//         //         realmName: "Alfheim",
+//         //         mapName: "Riverside",
+//         //         playerName: `PrecreateScore_${i+1}_A,PrecreateScore_${i+1}_B,PrecreateScore_${i+1}_C`,
+//         //         scores: 1000 + i,
+//         //         date: Date.now(),
+//         //         playerNumber: 3,
+//         //     });
 
-//             await newEntry.save();
-//         }
+//         //     await newEntry.save();
+//         // }
+
+//         await Scores.updateMany({}, { $unset: { mapName: 1 } });
+
 
 //         res.status(200).json({message:"success"});
 

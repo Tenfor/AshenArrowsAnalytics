@@ -9,7 +9,7 @@ const ScoreSchema = mongoose.Schema({
         type: String,
         required:true
     },
-    mapName: {
+    mapId: {
         type: String,
         required:true
     },
