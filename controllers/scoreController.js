@@ -186,37 +186,39 @@ const getBestOfAll = async (req,res)=>{
         }
 };
 
-// const updatedb = async (req, res) =>{
-//     try {
+const updatedb = async (req, res) =>{
+    try {
   
 
-//         // for (let i = 0; i < 5; i++) {
-//         //     let newEntry = new Scores({
-//         //         boardName: "Season_0_(Beta)",
-//         //         realmName: "Alfheim",
-//         //         mapName: "Riverside",
-//         //         playerName: `PrecreateScore_${i+1}_A,PrecreateScore_${i+1}_B,PrecreateScore_${i+1}_C`,
-//         //         scores: 1000 + i,
-//         //         date: Date.now(),
-//         //         playerNumber: 3,
-//         //     });
+        // for (let i = 0; i < 5; i++) {
+        //     let newEntry = new Scores({
+        //         boardName: "Season_0_(Beta)",
+        //         realmName: "Alfheim",
+        //         mapName: "Riverside",
+        //         playerName: `PrecreateScore_${i+1}_A,PrecreateScore_${i+1}_B,PrecreateScore_${i+1}_C`,
+        //         scores: 1000 + i,
+        //         date: Date.now(),
+        //         playerNumber: 3,
+        //     });
 
-//         //     await newEntry.save();
-//         // }
+        //     await newEntry.save();
+        // }
 
-//         // await Scores.updateMany({ mapId: "Alfheim_Riverside_MapData" }, { $set: { mapName: "Alfheim_Riverside_MapData" } });
-//         // await Scores.updateMany({ mapId: "Midgard_Gate_MapData" }, { $set: { mapName: "Midgard_Gate_MapData" } });
-//         // await Scores.updateMany({ mapId: "Nidavellir_Canyon_MapData" }, { $set: { mapName: "Nidavellir_Canyon_MapData" } });
-//         // await Scores.updateMany({ mapId: "Nidavellir_Forge_MapData" }, { $set: { mapName: "Nidavellir_Forge_MapData" } });
+        // await Scores.updateMany({ mapId: "Alfheim_Riverside_MapData" }, { $set: { mapName: "Alfheim_Riverside_MapData" } });
+        // await Scores.updateMany({ mapId: "Midgard_Gate_MapData" }, { $set: { mapName: "Midgard_Gate_MapData" } });
+        // await Scores.updateMany({ mapId: "Nidavellir_Canyon_MapData" }, { $set: { mapName: "Nidavellir_Canyon_MapData" } });
+        // await Scores.updateMany({ mapId: "Nidavellir_Forge_MapData" }, { $set: { mapName: "Nidavellir_Forge_MapData" } });
 
-//         // await Scores.updateMany({}, { $unset: { mapId: 1 } });
+        await Scores.updateMany({}, { $inc: { scores: 1800 } });
 
-//         res.status(200).json({message:"success"});
+        // await Scores.updateMany({}, { $unset: { mapId: 1 } });
+
+        res.status(200).json({message:"success"});
 
      
-//       } catch (err) {
-//         res.status(500).json({ error: 'Hiba történt a frissítés során.', details: err.message });
-//       }
-// }
+      } catch (err) {
+        res.status(500).json({ error: 'Hiba történt a frissítés során.', details: err.message });
+      }
+}
 
-module.exports = {getScores, postScores, getBestOfAll};
+module.exports = {getScores, postScores, getBestOfAll, updatedb};
