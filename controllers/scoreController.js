@@ -142,7 +142,8 @@ const getBestOfAll = async (req,res)=>{
                 scores: { $max: "$scores" } }
             },
             { $sort: { [sortField]: order } },
-            { $skip: (page-1) * size }
+            { $skip: (page-1) * size },
+            { $limit: size }
           ]);
 
           const playerScore = await Scores.aggregate([
