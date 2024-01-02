@@ -2,18 +2,19 @@ const Guid = require("../schemas/Guid");
 const Scores = require("../schemas/Scores");
 const postScores = async (req,res)=>{
     try {   
-        let {boardName, realmName, mapName, playerName, scores, date, guid, playerNumber} = req.body;
+        let {boardName, realmName, mapName, playerName, senderName, scores, date, guid, playerNumber} = req.body;
         if(!boardName) throw new Error("boardName field is missing from body");
         if(!realmName) throw new Error("realmName field is missing from body");
         if(!mapName) throw new Error("mapName field is missing from body");
         if(!playerName) throw new Error("playerName field is missing from body");
+        if(!senderName) senderName = playerName;
         if(!scores) throw new Error("scores field is missing from body");
         if(!date) throw new Error("date field is missing from body");
         if(!guid) throw new Error("guid field is missing from body");
         if(!playerNumber) throw new Error("playerNumber field is missing from body");
 
         console.log("POST SCORES", req.body);
-        const existingGuid = await Guid.findOne({playerName:playerName});
+        const existingGuid = await Guid.findOne({playerName:senderName});
 
         if(!existingGuid || existingGuid.guid !== guid){
           
