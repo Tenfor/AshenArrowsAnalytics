@@ -50,12 +50,16 @@ app.get('/testgetquery',testController.testGetQuery);
 
 
 //update db
-app.post('/updatedb', scoreController.updatedb);
+//app.post('/updatedb', scoreController.updatedb);
   
 
 //CONNECT TO MONGODB
-mongoose.connect(process.env.DB_CONNECTION, ()=>{
-    console.log('connected');
+mongoose.connect(process.env.DB_CONNECTION, {}, (err)=>{
+    if(err){
+        console.error('Error connecting to mongoDB:', err);    
+    }else{
+        console.log('connected');
+    }
 });
 
 //LISTENING TO THE SERVER

@@ -32,7 +32,7 @@ const postScores = async (req,res)=>{
             playerNumber:playerNumber
         });
 
-        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName});
+        const existingEntry = await Scores.findOne({boardName:newEntry.boardName,realmName:newEntry.realmName, mapName:newEntry.mapName, playerName:newEntry.playerName, playerNumber:newEntry.playerNumber});
 
         if(existingEntry){
             if(existingEntry.scores < newEntry.scores){
@@ -179,7 +179,7 @@ const getBestOfAll = async (req,res)=>{
                 },
                 { $sort: { [sortField]: order } },
               ]);
-              playerData = {...playerScore[0],rank:playerRank.length ? playerRank[0].count+1 : 1} 
+              playerData = {...playerScore[0],rank:playerRank.length + 1} 
           }
       
           res.status(200).json({page:page,size:size,data:scores, playerData:playerData});
@@ -191,27 +191,106 @@ const getBestOfAll = async (req,res)=>{
 const updatedb = async (req, res) =>{
     try {
   
+        for (let i = 0; i < 5; i++) {
+            let newEntry1 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Alfheim",
+                mapName: "Alfheim_Riverside_MapData",
+                playerName: `Player ${i+1} A,Player ${i+1} B,Player ${i+1} C`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 3,
+            });
 
-        // for (let i = 0; i < 5; i++) {
-        //     let newEntry = new Scores({
-        //         boardName: "Season_0_(Beta)",
-        //         realmName: "Alfheim",
-        //         mapName: "Riverside",
-        //         playerName: `PrecreateScore_${i+1}_A,PrecreateScore_${i+1}_B,PrecreateScore_${i+1}_C`,
-        //         scores: 1000 + i,
-        //         date: Date.now(),
-        //         playerNumber: 3,
-        //     });
+            let newEntry2 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Nidavellir",
+                mapName: "Nidavellir_Forge_MapData",
+                playerName: `Player ${i+1} A,Player ${i+1} B,Player ${i+1} C`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 3,
+            });
+       
+            let newEntry3 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Nidavellir",
+                mapName: "Nidavellir_Canyon_MapData",
+                playerName: `Player ${i+1} A,Player ${i+1} B,Player ${i+1} C`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 3,
+            });
+  
+            let newEntry4 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Midgard",
+                mapName: "Midgard_Gate_MapData",
+                playerName: `Player ${i+1} A,Player ${i+1} B,Player ${i+1} C`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 3,
+            });
 
-        //     await newEntry.save();
-        // }
+            await newEntry1.save();
+            await newEntry2.save();
+            await newEntry3.save();
+            await newEntry4.save();
+        }
+    
+        for (let i = 0; i < 10; i++) {
+            let newEntry1 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Alfheim",
+                mapName: "Alfheim_Riverside_MapData",
+                playerName: `Player ${i+1}`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 1,
+            });
+
+            let newEntry2 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Nidavellir",
+                mapName: "Nidavellir_Forge_MapData",
+                playerName: `Player ${i+1}`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 1,
+            });
+       
+            let newEntry3 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Nidavellir",
+                mapName: "Nidavellir_Canyon_MapData",
+                playerName: `Player ${i+1}`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 1,
+            });
+  
+            let newEntry4 = new Scores({
+                boardName: "Season_0_(Beta)",
+                realmName: "Midgard",
+                mapName: "Midgard_Gate_MapData",
+                playerName: `Player ${i+1}`,
+                scores: 1000 + i,
+                date: Date.now(),
+                playerNumber: 1,
+            });
+
+            await newEntry1.save();
+            await newEntry2.save();
+            await newEntry3.save();
+            await newEntry4.save();
+        }
 
         // await Scores.updateMany({ mapId: "Alfheim_Riverside_MapData" }, { $set: { mapName: "Alfheim_Riverside_MapData" } });
         // await Scores.updateMany({ mapId: "Midgard_Gate_MapData" }, { $set: { mapName: "Midgard_Gate_MapData" } });
         // await Scores.updateMany({ mapId: "Nidavellir_Canyon_MapData" }, { $set: { mapName: "Nidavellir_Canyon_MapData" } });
         // await Scores.updateMany({ mapId: "Nidavellir_Forge_MapData" }, { $set: { mapName: "Nidavellir_Forge_MapData" } });
 
-        await Scores.updateMany({}, { $inc: { scores: 1800 } });
+        // await Scores.updateMany({}, { $inc: { scores: 1800 } });
 
         // await Scores.updateMany({}, { $unset: { mapId: 1 } });
 
